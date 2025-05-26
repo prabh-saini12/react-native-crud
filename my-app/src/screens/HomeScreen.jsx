@@ -1,10 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import AllItems from "./AllItems";
-import LowStock from "./LowStock";
 import CreateScreen from "./CreateScreen";
 
-const Data = [
+const initialData = [
   { id: 1, name: "Wheat", stock: 25 },
   { id: 2, name: "Rice", stock: 40 },
   { id: 3, name: "Corn", stock: 12 },
@@ -18,86 +17,54 @@ const Data = [
 ];
 
 const HomeScreen = () => {
-  const [activeview, setView] = useState(0);
+  const [activeView, setView] = useState(0);
+  const [data, setData] = useState(initialData);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.title}>Dashboard</Text>
 
       <View style={styles.buttonContainer}>
-        <Pressable
-          style={[
-            styles.button,
-            activeview === 0 ? { backgroundColor: "#72C37AFF" } : null,
-          ]}
-          onPress={() => setView(0)}
-        >
-          <Text
+        {["All Items", "Low Stock", "Create"].map((label, idx) => (
+          <Pressable
+            key={label}
             style={[
-              styles.btnText,
-              activeview === 0 ? { color: "white" } : null,
+              styles.button,
+              activeView === idx && { backgroundColor: "#72C37AFF" },
             ]}
+            onPress={() => setView(idx)}
           >
-            All Items
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.button,
-            activeview === 1 ? { backgroundColor: "#72C37AFF" } : null,
-          ]}
-          onPress={() => setView(1)}
-        >
-          <Text
-            style={[
-              styles.btnText,
-              activeview === 1 ? { color: "white" } : null,
-            ]}
-          >
-            Low Stock
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.button,
-            activeview === 2 ? { backgroundColor: "#72C37AFF" } : null,
-          ]}
-          onPress={() => setView(2)}
-        >
-          <Text
-            style={[
-              styles.btnText,
-              activeview === 2 ? { color: "white" } : null,
-            ]}
-          >
-            Create
-          </Text>
-        </Pressable>
+            <Text style={[styles.btnText, activeView === idx && { color: "white" }]}>
+              {label}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
-      {activeview === 0 && <AllItems data={Data} />}
-      {activeview === 1 && <LowStock />}
-      {activeview === 2 && <CreateScreen />}
-    </View>
+      {activeView === 0 && <AllItems data={data} />}
+      {activeView === 1 && (
+        <AllItems data={data.filter((item) => item.stock < 20)} />
+      )}
+      {activeView === 2 && <CreateScreen data={data} setData={setData} />}
+    </ScrollView>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    height: "100%",
-    padding: "4%",
+  scrollContainer: {
+    padding: 16,
     backgroundColor: "#ffffff",
+    flexGrow: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 10,
+    marginTop: 40,
+
   },
   buttonContainer: {
     flexDirection: "row",
@@ -105,15 +72,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   button: {
-    paddingVertical: 3.5,
-    paddingHorizontal: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 5,
     borderWidth: 0.8,
     borderColor: "#72C37AFF",
   },
   btnText: {
+    fontSize: 14,
     color: "#333",
-    fontSize: 12,
-    fontWeight: "400",
   },
 });
